@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://rosetta-lmm.github.io/">
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Rosetta" />
+    <meta property="og:url" content="https://rosetta-lmm.github.io/" />
+    <meta property="og:title" content="Rosetta: Composable Native Multimodal Pretraining" />
+    <meta property="og:description" content="Native multimodal pretraining without catastrophic forgetting." />
+    <meta property="og:image" content="https://rosetta-lmm.github.io/assets/figures/teaser.jpg" />
+    <meta property="og:image:alt" content="Rosetta preserves language ability while expanding to multimodal understanding and text-to-image generation." />
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Rosetta: Composable Native Multimodal Pretraining">
+    <meta name="twitter:description" content="Native multimodal pretraining without catastrophic forgetting.">
+    <meta name="twitter:image" content="https://rosetta-lmm.github.io/assets/figures/teaser.jpg">
+    <meta name="description" content="Escaping the Forgetting-Synergy Dilemma in Native Multimodal Pretraining.">
+    <link rel="icon" type="image/svg+xml" href="assets/logos/favicon-red.svg">
+    <title>Rosetta: Composable Native Multimodal Pretraining</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <!-- Academicons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.9.4/css/academicons.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Consolidated CSS -->
+    <link href="styles.css" rel="stylesheet">
+    <script>
+    (function() {
+        const storedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const initialTheme = storedTheme || (prefersDark ? 'dark' : 'light');
+        if (initialTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    })();
+    </script>
+</head>
+<body>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" title="Toggle dark mode">
+        <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+    </button>
+    <!-- Header Section -->
+    <header class="header-section" id="overview">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-11 mx-auto text-center">
+                    <h1 class="paper-title"><span class="paper-title__brand">Rosetta:</span> Composable Native Multimodal Pretraining</h1>
+                    <div class="author-line">
+                        <span><a href="https://xiangyueliu.github.io/" class="author-link">Xiangyue Liu<sup>1<span class="author-mark"></span></sup></a></span>
+                        <span><a href="https://scholar.google.com/citations?user=TZ0nnhgAAAAJ&hl=zh-CN" class="author-link">Zijian Zhang<sup>2<span class="author-mark"></span></sup></a></span>
+                        <span><a href="https://openreview.net/profile?id=~Miles_Yang2" class="author-link">Miles Yang<sup>2<span class="author-mark"></span></sup></a></span>
+                        <span><a href="https://scholar.google.com/citations?user=igtXP_kAAAAJ&hl=en" class="author-link">Zhao Zhong<sup>2<span class="author-mark"></span></sup></a></span>
+                        <span><a href="https://scholar.google.com/citations?user=FJwtMf0AAAAJ&hl=en" class="author-link">Liefeng Bo<sup>2<span class="author-mark"></span></sup></a></span>
+                        <span><a href="https://scholar.google.com/citations?user=XhyKVFMAAAAJ&hl=en" class="author-link">Ping Tan<sup>1,<span class="author-mark">†</span></sup></a></span>
+                    </div>
+
+
+                    <div class="institution-logos">
+                        <div class="institution-logo-wrapper">
+                            <sup>1</sup>
+                            <span class="institution-name">HKUST</span>
+                        </div>
+                        <div class="institution-logo-wrapper">
+                            <sup>2</sup>
+                            <span class="institution-name">Tencent Hunyuan</span>
+                        </div>
+                    </div>
+
+                    <div class="paper-btn-wrapper">
+                        <!-- <a href="https://arxiv.org/abs/2603.03276" class="btn paper-btn"><i class="fas fa-file-alt me-2"></i>Paper<i class="fas fa-arrow-right ms-2"></i></a> -->
+                        <a href="" class="btn paper-btn"><i class="fab fa-github"></i>GitHub</a>
+                        <a href="" class="btn paper-btn"><svg class="paper-btn__hf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 95 88" fill="none" aria-hidden="true"><path fill="#FFD21E" d="M47.21 76.5a34.75 34.75 0 1 0 0-69.5 34.75 34.75 0 0 0 0 69.5Z"/><path fill="#FF9D0B" d="M81.96 41.75a34.75 34.75 0 1 0-69.5 0 34.75 34.75 0 0 0 69.5 0Zm-73.5 0a38.75 38.75 0 1 1 77.5 0 38.75 38.75 0 0 1-77.5 0Z"/><path fill="#3A3B45" d="M58.5 32.3c1.28.44 1.78 3.06 3.07 2.38a5 5 0 1 0-6.76-2.07c.61 1.15 2.55-.72 3.7-.32ZM34.95 32.3c-1.28.44-1.79 3.06-3.07 2.38a5 5 0 1 1 6.76-2.07c-.61 1.15-2.56-.72-3.7-.32Z"/><path fill="#FF323D" d="M46.96 56.29c9.83 0 13-8.76 13-13.26 0-2.34-1.57-1.6-4.09-.36-2.33 1.15-5.46 2.74-8.9 2.74-7.19 0-13-6.88-13-2.38s3.16 13.26 13 13.26Z"/><path fill="#3A3B45" fill-rule="evenodd" d="M39.43 54a8.7 8.7 0 0 1 5.3-4.49c.4-.12.81.57 1.24 1.28.4.68.82 1.37 1.24 1.37.45 0 .9-.68 1.33-1.35.45-.7.89-1.38 1.32-1.25a8.61 8.61 0 0 1 5 4.17c3.73-2.94 5.1-7.74 5.1-10.7 0-2.34-1.57-1.6-4.09-.36l-.14.07c-2.31 1.15-5.39 2.67-8.77 2.67s-6.45-1.52-8.77-2.67c-2.6-1.29-4.23-2.1-4.23.29 0 3.05 1.46 8.06 5.47 10.97Z" clip-rule="evenodd"/><path fill="#FF9D0B" d="M70.71 37a3.25 3.25 0 1 0 0-6.5 3.25 3.25 0 0 0 0 6.5ZM24.21 37a3.25 3.25 0 1 0 0-6.5 3.25 3.25 0 0 0 0 6.5ZM17.52 48c-1.62 0-3.06.66-4.07 1.87a5.97 5.97 0 0 0-1.33 3.76 7.1 7.1 0 0 0-1.94-.3c-1.55 0-2.95.59-3.94 1.66a5.8 5.8 0 0 0-.8 7 5.3 5.3 0 0 0-1.79 2.82c-.24.9-.48 2.8.8 4.74a5.22 5.22 0 0 0-.37 5.02c1.02 2.32 3.57 4.14 8.52 6.1 3.07 1.22 5.89 2 5.91 2.01a44.33 44.33 0 0 0 10.93 1.6c5.86 0 10.05-1.8 12.46-5.34 3.88-5.69 3.33-10.9-1.7-15.92-2.77-2.78-4.62-6.87-5-7.77-.78-2.66-2.84-5.62-6.25-5.62a5.7 5.7 0 0 0-4.6 2.46c-1-1.26-1.98-2.25-2.86-2.82A7.4 7.4 0 0 0 17.52 48Zm0 4c.51 0 1.14.22 1.82.65 2.14 1.36 6.25 8.43 7.76 11.18.5.92 1.37 1.31 2.14 1.31 1.55 0 2.75-1.53.15-3.48-3.92-2.93-2.55-7.72-.68-8.01.08-.02.17-.02.24-.02 1.7 0 2.45 2.93 2.45 2.93s2.2 5.52 5.98 9.3c3.77 3.77 3.97 6.8 1.22 10.83-1.88 2.75-5.47 3.58-9.16 3.58-3.81 0-7.73-.9-9.92-1.46-.11-.03-13.45-3.8-11.76-7 .28-.54.75-.76 1.34-.76 2.38 0 6.7 3.54 8.57 3.54.41 0 .7-.17.83-.6.79-2.85-12.06-4.05-10.98-8.17.2-.73.71-1.02 1.44-1.02 3.14 0 10.2 5.53 11.68 5.53.11 0 .2-.03.24-.1.74-1.2.33-2.04-4.9-5.2-5.21-3.16-8.88-5.06-6.8-7.33.24-.26.58-.38 1-.38 3.17 0 10.66 6.82 10.66 6.82s2.02 2.1 3.25 2.1c.28 0 .52-.1.68-.38.86-1.46-8.06-8.22-8.56-11.01-.34-1.9.24-2.85 1.31-2.85Z"/><path fill="#FFD21E" d="M38.6 76.69c2.75-4.04 2.55-7.07-1.22-10.84-3.78-3.77-5.98-9.3-5.98-9.3s-.82-3.2-2.69-2.9c-1.87.3-3.24 5.08.68 8.01 3.91 2.93-.78 4.92-2.29 2.17-1.5-2.75-5.62-9.82-7.76-11.18-2.13-1.35-3.63-.6-3.13 2.2.5 2.79 9.43 9.55 8.56 11-.87 1.47-3.93-1.71-3.93-1.71s-9.57-8.71-11.66-6.44c-2.08 2.27 1.59 4.17 6.8 7.33 5.23 3.16 5.64 4 4.9 5.2-.75 1.2-12.28-8.53-13.36-4.4-1.08 4.11 11.77 5.3 10.98 8.15-.8 2.85-9.06-5.38-10.74-2.18-1.7 3.21 11.65 6.98 11.76 7.01 4.3 1.12 15.25 3.49 19.08-2.12Z"/><path fill="#FF9D0B" d="M77.4 48c1.62 0 3.07.66 4.07 1.87a5.97 5.97 0 0 1 1.33 3.76 7.1 7.1 0 0 1 1.95-.3c1.55 0 2.95.59 3.94 1.66a5.8 5.8 0 0 1 .8 7 5.3 5.3 0 0 1 1.78 2.82c.24.9.48 2.8-.8 4.74a5.22 5.22 0 0 1 .37 5.02c-1.02 2.32-3.57 4.14-8.51 6.1-3.08 1.22-5.9 2-5.92 2.01a44.33 44.33 0 0 1-10.93 1.6c-5.86 0-10.05-1.8-12.46-5.34-3.88-5.69-3.33-10.9 1.7-15.92 2.78-2.78 4.63-6.87 5.01-7.77.78-2.66 2.83-5.62 6.24-5.62a5.7 5.7 0 0 1 4.6 2.46c1-1.26 1.98-2.25 2.87-2.82A7.4 7.4 0 0 1 77.4 48Zm0 4c-.51 0-1.13.22-1.82.65-2.13 1.36-6.25 8.43-7.76 11.18a2.43 2.43 0 0 1-2.14 1.31c-1.54 0-2.75-1.53-.14-3.48 3.91-2.93 2.54-7.72.67-8.01a1.54 1.54 0 0 0-.24-.02c-1.7 0-2.45 2.93-2.45 2.93s-2.2 5.52-5.97 9.3c-3.78 3.77-3.98 6.8-1.22 10.83 1.87 2.75 5.47 3.58 9.15 3.58 3.82 0 7.73-.9 9.93-1.46.1-.03 13.45-3.8 11.76-7-.29-.54-.75-.76-1.34-.76-2.38 0-6.71 3.54-8.57 3.54-.42 0-.71-.17-.83-.6-.8-2.85 12.05-4.05 10.97-8.17-.19-.73-.7-1.02-1.44-1.02-3.14 0-10.2 5.53-11.68 5.53-.1 0-.19-.03-.23-.1-.74-1.2-.34-2.04 4.88-5.2 5.23-3.16 8.9-5.06 6.8-7.33-.23-.26-.57-.38-.98-.38-3.18 0-10.67 6.82-10.67 6.82s-2.02 2.1-3.24 2.1a.74.74 0 0 1-.68-.38c-.87-1.46 8.05-8.22 8.55-11.01.34-1.9-.24-2.85-1.31-2.85Z"/><path fill="#FFD21E" d="M56.33 76.69c-2.75-4.04-2.56-7.07 1.22-10.84 3.77-3.77 5.97-9.3 5.97-9.3s.82-3.2 2.7-2.9c1.86.3 3.23 5.08-.68 8.01-3.92 2.93.78 4.92 2.28 2.17 1.51-2.75 5.63-9.82 7.76-11.18 2.13-1.35 3.64-.6 3.13 2.2-.5 2.79-9.42 9.55-8.55 11 .86 1.47 3.92-1.71 3.92-1.71s9.58-8.71 11.66-6.44c2.08 2.27-1.58 4.17-6.8 7.33-5.23 3.16-5.63 4-4.9 5.2.75 1.2 12.28-8.53 13.36-4.4 1.08 4.11-11.76 5.3-10.97 8.15.8 2.85 9.05-5.38 10.74-2.18 1.69 3.21-11.65 6.98-11.76 7.01-4.31 1.12-15.26 3.49-19.08-2.12Z"/></svg>Hugging Face</a>
+                        <a href="" class="btn paper-btn"><i class="ai ai-arxiv"></i>Paper (coming soon)</a>
+                        <div class="share-menu-wrapper">
+                            <button type="button" class="btn paper-btn share-toggle" id="share-toggle" aria-expanded="false" aria-controls="share-menu">
+                                <svg class="paper-btn__share" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share
+                            </button>
+                            <div class="share-menu" id="share-menu" aria-hidden="true">
+                                <a href="#" class="share-menu-item" data-share="twitter"><i class="fab fa-x-twitter"></i>Share on X (Twitter)</a>
+                                <a href="#" class="share-menu-item" data-share="facebook"><i class="fab fa-facebook-f"></i>Share on Facebook</a>
+                                <a href="#" class="share-menu-item" data-share="linkedin"><i class="fab fa-linkedin-in"></i>Share on LinkedIn</a>
+                                <a href="#" class="share-menu-item" data-share="email"><i class="far fa-envelope"></i>Share via Email</a>
+                                <button type="button" class="share-menu-item share-copy" data-share="copy"><i class="far fa-copy"></i><span>Copy Link</span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Teaser + TL;DR -->
+        <section class="row sec-teal" id="tldr">
+            <div class="col-lg-11 mx-auto">
+                <div class="teaser-block">
+                    <p class="tldr-summary"><span class="tldr-label">TL;DR:</span> Open-source native multimodal pretraining <span class="tldr-highlight">without catastrophic forgetting</span>.</p>
+
+                    <div class="section-figure section-figure--wide teaser-figure">
+                        <img src="assets/figures/teaser.jpg" alt="MMLU (language ability) across composable pretraining stages: Rosetta stays stable while MoE and MoT collapse" loading="lazy">
+                    </div>
+                    <p class="section-caption teaser-caption">
+                        <strong>Figure 1.</strong> <strong>(Left)</strong> MMLU (language ability) across composable pretraining stages (LM → +MMU → +T2I). MoE and MoT suffer catastrophic routing collapse when integrating text-to-image tasks; Rosetta maintains a stable semantic anchor throughout all stages. <strong>(Right)</strong> Qualitative image generation results from Rosetta.
+                    </p>
+                </div>
+
+                <div class="abstract-block" id="abstract">
+                    <h2 class="section-title abstract-title">Abstract</h2>
+                    <div class="abstract-body">
+                        <p>We present <strong>Rosetta</strong>, a composable native multimodal pretraining framework for integrating understanding and generation without catastrophic forgetting. Unlike standard MoE and structurally partitioned MoT, which suffer severe gradient conflicts and representation overwriting when continuous generative objectives are added, Rosetta preserves foundational knowledge in global shared experts while expanding through plug-and-play modality experts.</p>
+                        <p>To guarantee non-destructive composition with zero additional memory overhead, we propose Momentum-Anchored Orthogonal Projection (MAOP), which repurposes optimizer momentum as an implicit semantic anchor to selectively neutralize conflicting gradient components from new modalities. Under strict parameter parity with MoE and MoT baselines in the Transfusion framework, extensive experiments show that Rosetta maintains language and visual understanding ability while delivering superior image generation and cross-modal synergy.</p>
+                    </div>
+                </div>
+
+                <div class="architecture-block" id="architecture">
+                    <h2 class="section-title architecture-title">Architecture</h2>
+                    <div class="section-figure section-figure--wide architecture-figure">
+                        <img src="assets/figures/architecture.png" alt="Rosetta FFN architecture with Unified Attention, Composable FFN, and MAOP" loading="lazy">
+                    </div>
+                    <p class="section-caption architecture-caption">
+                        <strong>Figure 2. Rosetta FFN.</strong> Three mechanisms enable non-destructive modality expansion: (1) <strong>Unified Attention</strong>, globally shared QKV projections preserve dense cross-modal interactions. (2) <strong>Composable FFN</strong>, modality-specific plug-and-play experts (Text / ViT / VAE) are bridged by a single Global Shared Expert that anchors foundational knowledge. (3) <strong>Conflict-Free Optimization (MAOP)</strong>, surgically neutralizes destructive gradients with zero memory overhead.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sticky Section Navigation -->
+        <nav id="section-nav" class="section-nav">
+            <div class="nav-mobile-header">
+                <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle navigation">
+                    <span></span><span></span><span></span>
+                </button>
+                <span class="nav-mobile-title">Rosetta</span>
+            </div>
+            <div class="section-nav-inner">
+                <a class="section-nav-link nav-top-link" data-section="overview"><i class="fas fa-arrow-up" style="font-size: 0.7em;"></i> Top</a>
+                <span class="section-nav-sep">·</span>
+                <a class="section-nav-link nav-color-teal" data-section="abstract">Abstract</a>
+                <span class="section-nav-sep">·</span>
+                <a class="section-nav-link nav-color-teal" data-section="architecture">Architecture</a>
+                <span class="section-nav-sep">·</span>
+                <a class="section-nav-link nav-color-gold" data-section="sec-main-results">Main Results</a>
+                <span class="section-nav-sep">·</span>
+                <a class="section-nav-link nav-color-teal" data-section="sec-training-dynamics">Dynamics</a>
+                <span class="section-nav-sep">·</span>
+                <a class="section-nav-link nav-color-blue" data-section="sec-routing-analysis">Routing</a>
+                <span class="section-nav-sep">·</span>
+                <a class="section-nav-link nav-color-blue" data-section="sec-qualitative-results">Qualitative</a>
+            </div>
+        </nav>
+
+        <div class="sidebar-content-area rosetta-results">
+            <!-- Main Results -->
+            <section id="sec-main-results" class="sec-gold results-block">
+                <div class="row">
+                    <div class="col-lg-11 mx-auto">
+                        <h2 class="section-title">Main Results</h2>
+
+                        <div class="section-figure section-figure--wide results-figure results-figure--table">
+                            <img src="assets/figures/table.png" alt="Comprehensive performance evaluations across language, visual understanding, and visual generation" loading="lazy">
+                        </div>
+                        <p class="section-caption results-caption">
+                            <strong>Table 1. Comprehensive Performance Evaluations.</strong> All methods are evaluated in their raw foundation state after the full multimodal pretraining phase (LM+MMU+T2I) under identical training constraints, strictly without any downstream instruction tuning. Rosetta fundamentally overcomes the catastrophic forgetting existing in MoE and MoT, achieving the best across all three capability domains (Language, Visual Understanding, and Visual Generation). The gray row Rosetta (Pre-T2I) represents the understanding performance of Rosetta prior integrating T2I. (<strong>Bold</strong>: Best)
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="section-divider">
+
+            <!-- Training Dynamics -->
+            <section id="sec-training-dynamics" class="sec-teal results-block">
+                <div class="row">
+                    <div class="col-lg-11 mx-auto">
+                        <h2 class="section-title">Training Dynamics</h2>
+
+                        <div class="section-figure section-figure--wide results-figure results-figure--dynamics">
+                            <img src="assets/figures/dynamics.jpg" alt="Training dynamics for Rosetta, MoE, and MoT over 200K generative expansion steps" loading="lazy">
+                        </div>
+                        <p class="section-caption results-caption">
+                            <strong>Figure 3. Comprehensive Training Dynamics.</strong> Evaluated over a 200K-step generative expansion. <strong>(1) Overall Dynamics (Top Row):</strong> Rosetta averts the irreversible MMBench degradation in MoE and MoT baselines, maintaining a synergistic upward trajectory (Left). It also achieves a deeper optimization bound (Center) and near-optimal capacity rate (<em>i.e.</em>, ratio of successfully routed, non-dropped tokens; ~0.95, Right). <strong>(2) Task-Specific Losses (Bottom Row):</strong> Rosetta accelerates T2I convergence (Left) and neutralizes cross-modal gradient interference, guaranteeing strictly lower and stable trajectories for both visual (Center) and language understanding (Right).
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="section-divider">
+
+            <!-- Routing Analysis -->
+            <section id="sec-routing-analysis" class="sec-blue results-block">
+                <div class="row">
+                    <div class="col-lg-11 mx-auto">
+                        <h2 class="section-title">Deep Analysis: Unmasking the Collapse</h2>
+
+                        <div class="section-figure section-figure--wide results-figure results-figure--routing">
+                            <img src="assets/figures/rounting.png" alt="Routing distribution heatmaps for MoE, MoT, and Rosetta before and after T2I expansion" loading="lazy">
+                        </div>
+                        <p class="section-caption results-caption">
+                            <strong>Figure 4. Routing Distribution Heatmaps During Generative Expansion.</strong> We visualize the routing probabilities of Text tokens across experts during MMLU inference. <strong>Top Row:</strong> Checkpoints under the LM+MMU configuration (iteration 55K in Fig. 1). <strong>Bottom Row:</strong> Checkpoints upon integrating 30K steps of T2I training (iteration 85K in Fig. 1). Both MoE and MoT exhibit significant distribution shifts, indicating severe cross-modal interference. In contrast, Rosetta maintains nearly identical routing distribution, successfully preserving pre-established language capabilities.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="section-divider">
+
+            <!-- Qualitative Results -->
+            <section id="sec-qualitative-results" class="sec-blue results-block">
+                <div class="row">
+                    <div class="col-lg-11 mx-auto">
+                        <h2 class="section-title">Qualitative Generation</h2>
+
+                        <div class="section-figure section-figure--wide results-figure results-figure--vis">
+                            <img src="assets/figures/vis.jpg" alt="Qualitative image generation comparisons among Rosetta, MoE, and MoT" loading="lazy">
+                        </div>
+                        <p class="section-caption results-caption">
+                            <strong>Figure 5. Qualitative Comparisons.</strong> Standard MoE suffers semantic drift (<em>e.g.</em>, bird to bottle) and MoT exhibits structural distortions (<em>e.g.</em>, broken lamp). In contrast, Rosetta leverages cross-modal synergy to synthesize high-fidelity images with precise spatial geometry and prompt adherence.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="section-divider">
+
+            <!-- Citation Section -->
+            <section id="citation" class="mt-2">
+                <div class="row">
+                    <div class="col-lg-11 mx-auto">
+                        <h2 class="section-title">Citation (Coming Soon)</h2>
+                        <div class="citation-block">
+                            <button class="copy-citation-btn" onclick="copyCitation(this)" title="Copy to clipboard">
+                                <i class="fas fa-copy"></i><span>Copy</span>
+                            </button>
+                            <pre><code>@article{liu2026rosetta,
+  title={Rosetta: Composable Native Multimodal Pretraining},
+  author={Liu, Xiangyue and Zhang, Zijian and Yang, Miles and Zhong, Zhao and Bo, Liefeng and Tan, Ping},
+  year={2026}
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div><!-- end sidebar-content-area -->
+    </main>
+
+    <!-- Image Lightbox -->
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+        <img id="lightbox-img" src="" alt="">
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <p>Questions? Contact <a href="https://xiangyueliu.github.io/">Xiangyue Liu</a>.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+    (function() {
+        const sectionNav = document.getElementById('section-nav');
+        const navLinks = document.querySelectorAll('.section-nav-link');
+        const sections = [];
+
+        navLinks.forEach(link => {
+            const id = link.getAttribute('data-section');
+            const el = document.getElementById(id);
+            if (el) sections.push({ id, el, link });
+        });
+
+        function updateNavVisibility() {
+            const abstract = document.getElementById('abstract');
+            if (!abstract || !sectionNav) return;
+            const showAfter = abstract.offsetTop - 80;
+            sectionNav.classList.toggle('visible', window.scrollY > showAfter);
+        }
+
+        function updateActiveSection() {
+            const scrollY = window.scrollY + 200;
+            let current = sections[0];
+            for (const section of sections) {
+                if (section.el.offsetTop <= scrollY) current = section;
+            }
+            navLinks.forEach(link => link.classList.remove('active'));
+            if (current) current.link.classList.add('active');
+        }
+
+        window.addEventListener('scroll', () => {
+            updateNavVisibility();
+            updateActiveSection();
+        });
+        updateNavVisibility();
+        updateActiveSection();
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const id = this.getAttribute('data-section');
+                const target = document.getElementById(id);
+                if (target) target.scrollIntoView({ behavior: 'smooth' });
+                sectionNav.classList.remove('menu-open');
+                const hamburger = document.getElementById('nav-hamburger');
+                if (hamburger) hamburger.classList.remove('open');
+            });
+        });
+
+        const hamburger = document.getElementById('nav-hamburger');
+        if (hamburger) {
+            hamburger.addEventListener('click', function() {
+                this.classList.toggle('open');
+                sectionNav.classList.toggle('menu-open');
+            });
+        }
+
+        // Touch-friendly tooltips
+        if ('ontouchstart' in window) {
+            document.querySelectorAll('.tldr-keyword').forEach(kw => {
+                kw.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const wasActive = this.classList.contains('tooltip-active');
+                    document.querySelectorAll('.tldr-keyword').forEach(k => k.classList.remove('tooltip-active'));
+                    if (!wasActive) this.classList.add('tooltip-active');
+                });
+            });
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.tldr-keyword')) {
+                    document.querySelectorAll('.tldr-keyword').forEach(k => k.classList.remove('tooltip-active'));
+                }
+            });
+        }
+    })();
+
+    (function() {
+        const toggleButton = document.getElementById('theme-toggle');
+        if (!toggleButton) return;
+
+        function getCurrentTheme() {
+            return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        }
+
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                toggleButton.setAttribute('aria-label', 'Switch to light mode');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                toggleButton.setAttribute('aria-label', 'Switch to dark mode');
+            }
+        }
+
+        applyTheme(getCurrentTheme());
+
+        toggleButton.addEventListener('click', function() {
+            const nextTheme = getCurrentTheme() === 'dark' ? 'light' : 'dark';
+            applyTheme(nextTheme);
+            localStorage.setItem('theme', nextTheme);
+        });
+    })();
+
+    (function() {
+        const shareToggle = document.getElementById('share-toggle');
+        const shareMenu = document.getElementById('share-menu');
+        if (!shareToggle || !shareMenu) return;
+
+        const pageTitle = 'Rosetta: Composable Native Multimodal Pretraining';
+        const shareText = 'Check out Rosetta: Composable Native Multimodal Pretraining.';
+        const canonicalUrl = document.querySelector('link[rel="canonical"]')?.href || window.location.href;
+        const pageUrl = canonicalUrl;
+        const isPublicUrl = /^https?:/.test(pageUrl);
+
+        function closeShareMenu() {
+            shareMenu.classList.remove('open');
+            shareMenu.setAttribute('aria-hidden', 'true');
+            shareToggle.setAttribute('aria-expanded', 'false');
+        }
+
+        function openShareWindow(url) {
+            window.open(url, '_blank', 'noopener,noreferrer,width=720,height=520');
+        }
+
+        function handleLocalPreviewShare(item) {
+            const label = item.querySelector('span');
+            navigator.clipboard.writeText(pageUrl).then(() => {
+                if (label) {
+                    const original = label.textContent;
+                    label.textContent = 'Local link copied';
+                    setTimeout(() => { label.textContent = original; }, 1800);
+                } else {
+                    alert('Social sharing needs a public http/https URL. The local preview link has been copied instead.');
+                }
+            });
+        }
+
+        shareToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isOpen = shareMenu.classList.toggle('open');
+            shareMenu.setAttribute('aria-hidden', String(!isOpen));
+            shareToggle.setAttribute('aria-expanded', String(isOpen));
+        });
+
+        shareMenu.addEventListener('click', function(e) {
+            const item = e.target.closest('[data-share]');
+            if (!item) return;
+            e.preventDefault();
+
+            const encodedUrl = encodeURIComponent(pageUrl);
+            const encodedTitle = encodeURIComponent(pageTitle);
+            const encodedShareText = encodeURIComponent(shareText);
+            const shareType = item.getAttribute('data-share');
+
+            if (!isPublicUrl && shareType !== 'copy' && shareType !== 'email') {
+                handleLocalPreviewShare(item);
+                return;
+            }
+
+            if (shareType === 'twitter') {
+                openShareWindow(`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedShareText}`);
+            } else if (shareType === 'facebook') {
+                openShareWindow(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`);
+            } else if (shareType === 'linkedin') {
+                openShareWindow(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`);
+            } else if (shareType === 'email') {
+                window.location.href = `mailto:?subject=${encodedTitle}&body=${encodedShareText}%0A${encodedUrl}`;
+            } else if (shareType === 'copy') {
+                navigator.clipboard.writeText(pageUrl).then(() => {
+                    const label = item.querySelector('span');
+                    const original = label.textContent;
+                    label.textContent = 'Copied!';
+                    setTimeout(() => { label.textContent = original; }, 1600);
+                });
+            }
+
+            if (shareType !== 'copy') closeShareMenu();
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.share-menu-wrapper')) closeShareMenu();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeShareMenu();
+        });
+    })();
+
+    // Lightbox for figures
+    document.querySelectorAll('.section-figure img, .section-figure-col img, .section-figure--tall img').forEach(img => {
+        img.addEventListener('click', function() {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            lightboxImg.src = this.src;
+            lightboxImg.alt = this.alt;
+            lightbox.classList.add('open');
+        });
+    });
+
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('open');
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeLightbox();
+    });
+
+    function copyCitation(btn) {
+        const pre = btn.closest('.citation-block').querySelector('code');
+        const text = pre.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            const icon = btn.querySelector('i');
+            const label = btn.querySelector('span');
+            icon.className = 'fas fa-check';
+            label.textContent = 'Copied!';
+            btn.classList.add('copied');
+            setTimeout(() => {
+                icon.className = 'fas fa-copy';
+                label.textContent = 'Copy';
+                btn.classList.remove('copied');
+            }, 2000);
+        });
+    }
+    </script>
+</body>
+</html>
