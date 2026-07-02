@@ -72,15 +72,6 @@ a { color: var(--link-color); }
     -webkit-backdrop-filter: blur(4px);
 }
 
-.citation-block code {
-    white-space: pre-wrap; /* 或者使用 pre */
-    display: block;
-    background-color: #f8f9fa; /* 稍微给背景加点颜色会更好看 */
-    padding: 15px;
-    border-radius: 5px;
-    font-family: 'Courier New', Courier, monospace; /* 使用等宽字体 */
-}
-
 .theme-toggle:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
